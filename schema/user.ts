@@ -1,9 +1,15 @@
 import { z } from "zod";
 
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
+);
+
+
 export const RegisterSchema = z
   .object({
     firstName: z.string().min(2).max(20),
     lastName: z.string().min(2).max(20),
+    phone: z.string().regex(phoneRegex, 'Invalid Number!'),
     email: z
       .string({ required_error: "Email is required" })
       .min(1, "Email is required")

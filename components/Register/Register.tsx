@@ -144,6 +144,30 @@ export default function RegisterPage() {
                   )}
                 />
               </div>
+
+              <div className="grid gap-2">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="phone">Phone</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          id="phone"
+                          type="text"
+                          placeholder="+79200778340"
+                          required
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <div className="grid gap-2">
                 <FormField
                   control={form.control}

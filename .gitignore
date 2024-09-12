@@ -6,6 +6,8 @@
 .pnp.js
 .yarn/install-state.gz
 
+/public/_localStorage/*
+
 # testing
 /coverage
 

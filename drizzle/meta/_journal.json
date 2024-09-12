@@ -8,6 +8,34 @@
       "when": 1726076642577,
       "tag": "0000_round_agent_zero",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1726152819083,
+      "tag": "0001_flimsy_songbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1726163327314,
+      "tag": "0002_curly_liz_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1726166019907,
+      "tag": "0003_little_eternals",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1726169183327,
+      "tag": "0004_clever_chimera",
+      "breakpoints": true
     }
   ]
 }
