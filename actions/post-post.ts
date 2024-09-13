@@ -13,7 +13,7 @@ export async function savePost(formData: FormData) {
   if (!session?.user?.id) throw new Error("forbidden");
 
   const images = formData.getAll("images") as File[];
-  const uploadedImagePaths: string[] = [];
+  const uploadedImagePaths: string[] = ["x"];
 
   const values = {
     title: formData.get("title"),
@@ -23,6 +23,7 @@ export async function savePost(formData: FormData) {
   }
 
   const validatedData = newPost.safeParse(values);
+  uploadedImagePaths.pop();
 
   if (!validatedData.success) throw new Error("Invalid data provided");
 
@@ -38,6 +39,8 @@ export async function savePost(formData: FormData) {
     // Add the file path to the uploadedImagePaths array
     uploadedImagePaths.push(`/_localStorage/${fileName}`);
   }
+
+ validatedData.data.images =  uploadedImagePaths as any;
 
   await databaseDrizzle.insert(posts).values({ author: session.user.id, ...validatedData.data });
 }

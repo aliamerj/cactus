@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { PostDialog } from "@/components/postDialog/PostDialog";
 import { Posts } from "@/components/posts/Posts"
 import { Button } from "@/components/ui/button";
@@ -5,10 +6,12 @@ import { databaseDrizzle } from "@/db/database"
 import { BadgePlus } from "lucide-react";
 
 export default async function Dashboard() {
+  const sesstion = await auth();
   const products = await databaseDrizzle.query.posts.findMany();
   return (
     <div >
       <Posts products={products} />
+      {sesstion?.user?.id &&
       <PostDialog>
         <Button
           variant="link"
@@ -17,7 +20,7 @@ export default async function Dashboard() {
         >
           <BadgePlus className="w-16 h-16" />
         </Button>
-      </PostDialog>
+      </PostDialog>}
     </div>
   )
 }
