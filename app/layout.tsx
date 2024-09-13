@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Cuprum } from 'next/font/google'
 import { Toaster } from "@/components/ui/toaster";
+import { Navbar } from "@/components/navbar/Navbar";
 
 const inter = Cuprum({
   subsets: ['cyrillic'],
@@ -21,8 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={inter.className}>
-      <body
+      <body 
       >
+        <Navbar />
         <main>{children}</main>
         <Toaster />
       </body>
