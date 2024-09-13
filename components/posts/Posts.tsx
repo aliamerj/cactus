@@ -1,5 +1,6 @@
 import { posts } from '@/db/schemas/posts'
-import { Truck, BadgeCheck } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { Truck, BadgeCheck, Clock } from "lucide-react";
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -16,8 +17,16 @@ export const Posts = ({ products }: { products: (typeof posts.$inferSelect)[] })
 }
 
 const ProductCard = ({ product }: { product: typeof posts.$inferSelect }) => {
+    // Calculate the time since the product was created
+  const timeSincePosted = formatDistanceToNow(new Date(product.createdAt), {
+    addSuffix: true,
+  });
+
   return (
-    <Link href={`product/${product.id}`} className="rounded-lg overflow-hidden shadow-xl hover:shadow-2xl bg-white flex flex-col transform transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer">
+     <Link
+      href={`product/${product.id}`}
+      className="rounded-lg overflow-hidden shadow-xl hover:shadow-2xl bg-white flex flex-col transform transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer"
+    >
       {/* Product Image */}
       <div className="relative h-0 pb-[56.25%]">
         <Image
@@ -40,6 +49,12 @@ const ProductCard = ({ product }: { product: typeof posts.$inferSelect }) => {
           </span>
         </div>
 
+        {/* Time Since Posted */}
+        <div className="flex items-center text-gray-600 mb-2 space-x-2">
+          <Clock className="h-5 w-5" />
+          <span className="text-xs md:text-sm">{timeSincePosted}</span>
+        </div>
+
         {/* Action Icons */}
         <div className="flex justify-between items-center space-x-4 text-gray-600 mt-3">
           {/* Delivery Option */}
@@ -56,6 +71,5 @@ const ProductCard = ({ product }: { product: typeof posts.$inferSelect }) => {
         </div>
       </div>
     </Link>
-
   );
 };

@@ -9,21 +9,22 @@ import { Button } from "@/components/ui/button";
 import { newPost } from "@/schema/post";
 import { useRef, useState, useTransition } from "react";
 import { ImageIcon, X } from "lucide-react"; // Icons for image and remove action
-import { savePost } from "@/actions/post-post";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
 import CurrencyInput from 'react-currency-input-field';
 import Image from 'next/image'
 import { DialogClose } from "@radix-ui/react-dialog";
+import { posts } from "@/db/schemas/posts";
+import { handleCreatePost, handleUpdatePost } from "./requestsHandle/requestsHandle";
 
-export const PostForm = () => {
-  const [images, setImages] = useState<File[]>([]); // State to store multiple image previews
+export const PostForm = ({ post }: { post?: typeof posts.$inferSelect }) => {
+  const [images, setImages] = useState<File[]>([]);
+  const [currentImages, setCurrentImages] = useState<string[] | undefined>(post?.images);
   const ref = useRef<HTMLButtonElement>(null)
   const [isPending, startTransition] = useTransition();
   const route = useRouter();
   const form = useForm<z.infer<typeof newPost>>({
     resolver: zodResolver(newPost),
-    defaultValues: {
+    defaultValues: post ?? {
       title: "",
       description: "",
       images: []
@@ -37,8 +38,8 @@ export const PostForm = () => {
 
     files.forEach((file) => {
       const reader = new FileReader();
-       reader.onloadend = ()=>{
-         setImages((prevImages) => [file,...prevImages]);
+      reader.onloadend = () => {
+        setImages((prevImages) => [file, ...prevImages]);
       }
       reader.readAsDataURL(file);
     });
@@ -52,33 +53,26 @@ export const PostForm = () => {
     });
   };
 
+  const removeCurrentImage = (imageUrl: string) => {
+    setCurrentImages((prev) => prev?.filter(url => url != imageUrl));
+  };
+
   async function onSubmit(values: z.infer<typeof newPost>) {
-    startTransition(() => {
-      const create = async () => {
-        const formData = new FormData();
-        formData.append("title", values.title);
-        formData.append("description", values.description);
-        formData.append("price", values.price.toString());
-        images.forEach((image) => formData.append("images", image));
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("price", values.price.toString());
+    images.forEach((image) => formData.append("images", image));
+    currentImages?.forEach((url) => formData.append("current_images", url))
 
-        try {
-          await savePost(formData);
-        } catch (error: any) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          });
-        }
-      };
+    startTransition(async () => {
 
-      create();
-      toast({
-        variant: "ok",
-        title: "The post has been published successfully",
-      });
-      route.refresh()
-      ref.current?.click()
+      const res = post ? await handleUpdatePost(formData, post.id) : await handleCreatePost(formData);
+      if (res) {
+        ref.current?.click();
+        route.refresh();
+        return;
+      }
     });
   }
 
@@ -171,6 +165,24 @@ export const PostForm = () => {
 
                     {/* Image Previews */}
                     <div className="flex flex-wrap gap-4 mt-4">
+                      {currentImages?.map((image, index) => (
+                        <div key={index} className="relative">
+                          <Image
+                            src={image}
+                            alt={`Preview ${index + 1}`}
+                            width={200}
+                            height={200}
+                            className="h-32 w-32 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            onClick={() => removeCurrentImage(image)}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
                       {images.map((image, index) => (
                         <div key={index} className="relative">
                           <Image
@@ -200,7 +212,7 @@ export const PostForm = () => {
         />
         <div className="flex justify-end">
           <Button type="submit" disabled={isPending}>
-            Submit Post
+            {!post ? "Submit Post" : "Update Post"}
           </Button>
         </div>
         <DialogClose asChild>

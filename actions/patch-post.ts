@@ -1,19 +1,22 @@
 "use server";
 
 import { auth } from "@/auth";
-import { newPost } from "@/schema/post";
+import { updatePost } from "@/schema/post";
 import path from "path";
 import { promises as fs } from "fs"
 import { databaseDrizzle } from "@/db/database";
 import { posts } from "@/db/schemas/posts";
+import { and, eq } from "drizzle-orm";
 
 
-export async function savePost(formData: FormData) {
+export async function patchPost(formData: FormData, postId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("forbidden");
 
   const images = formData.getAll("images") as File[];
-  const uploadedImagePaths: string[] = [];
+  const currentImg = formData.getAll("current_images") as string[];
+
+  const uploadedImagePaths: string[] = [...currentImg];
 
   const values = {
     title: formData.get("title"),
@@ -22,7 +25,7 @@ export async function savePost(formData: FormData) {
     price: parseInt(formData.get("price") as string ?? "")
   }
 
-  const validatedData = newPost.safeParse(values);
+  const validatedData = updatePost.safeParse(values);
 
   if (!validatedData.success) throw new Error("Invalid data provided");
 
@@ -39,5 +42,10 @@ export async function savePost(formData: FormData) {
     uploadedImagePaths.push(`/_localStorage/${fileName}`);
   }
 
-  await databaseDrizzle.insert(posts).values({ author: session.user.id, ...validatedData.data });
+  validatedData.data.images =  uploadedImagePaths;
+
+  await databaseDrizzle
+    .update(posts)
+    .set({ author: session.user.id, ...validatedData.data })
+    .where(and(eq(posts.id, postId), eq(posts.author, session.user.id)));
 }

@@ -38,7 +38,7 @@ export default async function UserAvatar({
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/support"> Support</Link>
+          <Link href="/my_posts"> My Posts</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <form
